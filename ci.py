@@ -126,7 +126,7 @@ class InterfaceTk:
     def __init__(self, master, organizador, celulas_alocadas, largura_total, altura_linha, num_linhas):
         self.master = master
         self.master.title("EDA Com Hash")
-        self.master.geometry("400x300")
+        self.master.geometry("700x500")
 
         self.organizador = organizador
         self.celulas_alocadas = celulas_alocadas
@@ -137,6 +137,31 @@ class InterfaceTk:
         # Botão para gerar imagem
         self.b_imagem = tk.Button(master, text="GERAR IMAGEM", command=self.gerar_imagem)
         self.b_imagem.pack(pady=10)
+
+        # Título para inserção de nova célula
+        self.label_nova = tk.Label(master, text="Inserir nova célula:")
+        self.label_nova.pack(pady=10)
+
+        self.label_id = tk.Label(master, text="ID:")
+        self.label_id.pack()
+        self.entrada_id = tk.Entry(master)
+        self.entrada_id.pack()
+
+        self.label_largura = tk.Label(master, text="Largura:")
+        self.label_largura.pack()
+        self.entrada_largura = tk.Entry(master)
+        self.entrada_largura.pack()
+
+        self.label_altura = tk.Label(master, text="Altura:")
+        self.label_altura.pack()
+        self.entrada_altura = tk.Entry(master)
+        self.entrada_altura.pack()
+
+        self.botao_inserir = tk.Button(master, text="INSERIR CÉLULA", command=self.inserir_celula)
+        self.botao_inserir.pack(pady=10)
+
+        self.msg_insercao = tk.Label(master, text="", fg="blue")
+        self.msg_insercao.pack()
 
         # Entrada para busca
         self.label_busca = tk.Label(master, text="Buscar célula por ID:")
@@ -176,6 +201,43 @@ class InterfaceTk:
     def gerar_imagem(self):
         imagem = GerarImagem(self.largura_total, self.altura_linha, self.num_linhas)
         imagem.desenhar(self.celulas_alocadas)
+    
+    def inserir_celula(self):
+        id_novo = self.entrada_id.get().strip()
+        largura_txt = self.entrada_largura.get().strip()
+        altura_txt = self.entrada_altura.get().strip()
+
+        if not id_novo or not largura_txt or not altura_txt:
+            self.msg_insercao.config(text="Preencha todos os campos!", fg="red")
+            return
+
+        try:
+            largura = float(largura_txt)
+            altura = float(altura_txt)
+        except ValueError:
+            self.msg_insercao.config(text="Largura e altura devem ser números!", fg="red")
+            return
+
+        pos = self.organizador.alocar_celula(id_novo, largura, altura)
+        if pos is not None:
+            linha_aloc, x_aloc = pos
+            nova_celula = {
+                'id': id_novo,
+                'x': x_aloc,
+                'linha': linha_aloc,
+                'largura': largura,
+                'altura': altura
+            }
+            self.celulas_alocadas.append(nova_celula)
+
+            # Atualiza menu de remoção
+            self.opcoes.append(id_novo)
+            self.menu['menu'].add_command(label=id_novo, command=lambda v=id_novo: self.selecionado.set(v))
+            self.selecionado.set(id_novo)
+
+            self.msg_insercao.config(text=f"Célula '{id_novo}' inserida na linha {linha_aloc}, X={x_aloc}", fg="green")
+        else:
+            self.msg_insercao.config(text=f"Não foi possível alocar a célula '{id_novo}'", fg="red")
     
     def buscar_celula(self):
         id_celula = self.entrada_busca.get().strip()
