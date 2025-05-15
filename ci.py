@@ -138,6 +138,20 @@ class InterfaceTk:
         self.b_imagem = tk.Button(master, text="GERAR IMAGEM", command=self.gerar_imagem)
         self.b_imagem.pack(pady=10)
 
+        # Entrada para busca
+        self.label_busca = tk.Label(master, text="Buscar célula por ID:")
+        self.label_busca.pack()
+
+        self.entrada_busca = tk.Entry(master)
+        self.entrada_busca.pack(pady=5)
+
+        self.botao_buscar = tk.Button(master, text="BUSCAR", command=self.buscar_celula)
+        self.botao_buscar.pack(pady=5)
+
+        self.resultado_busca = tk.Label(master, text="", fg="blue")
+        self.resultado_busca.pack()
+
+
         # Mensagem para remoção
         self.m_remover = tk.Label(master, text="Escolha a célula que deseja remover")
         self.m_remover.pack(pady=5)
@@ -162,6 +176,24 @@ class InterfaceTk:
     def gerar_imagem(self):
         imagem = GerarImagem(self.largura_total, self.altura_linha, self.num_linhas)
         imagem.desenhar(self.celulas_alocadas)
+    
+    def buscar_celula(self):
+        id_celula = self.entrada_busca.get().strip()
+        if not id_celula:
+            self.resultado_busca.config(text="Digite um ID válido.", fg="red")
+            return
+
+        pos = self.organizador.tabela.buscar(id_celula)
+        if pos is not None:
+            linha, x = pos
+            self.resultado_busca.config(
+                text=f"Célula '{id_celula}' está na linha {linha}, posição X={x}", fg="green"
+            )
+        else:
+            self.resultado_busca.config(
+                text=f"Célula '{id_celula}' não encontrada.", fg="red"
+            )
+
 
     def remover_celula(self):
         celula_id = self.selecionado.get()
