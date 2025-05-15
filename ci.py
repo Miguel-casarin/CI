@@ -1,3 +1,7 @@
+# arrumar o codifo, melhorar organização
+#usar variaveis globais
+#implementar a legalização
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import tkinter as tk 
